@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SmartCare.Core.Entities.Identity
 {
-    public class ApplicationUser :IdentityUser<Guid>
+    public class ApplicationUser : IdentityUser<Guid>
     {
         public string FirstName { get; set; } = string.Empty;
 

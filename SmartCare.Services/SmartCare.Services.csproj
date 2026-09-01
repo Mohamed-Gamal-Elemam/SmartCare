@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SmartCare.Services.Abstraction\SmartCare.Services.Abstraction.csproj" />
+  </ItemGroup>
+
 </Project>
