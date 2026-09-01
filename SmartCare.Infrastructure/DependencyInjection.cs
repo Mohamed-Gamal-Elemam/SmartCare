@@ -5,8 +5,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartCare.Core.Entities.Identity;
 using SmartCare.Core.Interfaces;
 using SmartCare.Core.Interfaces.Repositories;
+using SmartCare.Infrastructure.Authentication;
 using SmartCare.Infrastructure.Persistence;
 using SmartCare.Infrastructure.Persistence.Repositories;
+using SmartCare.Services.Abstraction.Options;
+using SmartCare.Services.Abstraction.Services;
 
 
 namespace SmartCare.Infrastructure;
@@ -24,7 +27,8 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         
-
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+        services.AddScoped<ITokenService, TokenService>();
 
 
 

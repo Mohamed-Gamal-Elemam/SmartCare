@@ -22,6 +22,7 @@ namespace SmartCare.API
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<SmartCareDbContext>()
                 .AddDefaultTokenProviders();
+            builder.Services.AddJwtAuthentication(builder.Configuration);
 
 
             var app = builder.Build();
