@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="SmartCare.API/SmartCare.API.csproj" />
+  <Project Path="SmartCare.Core/SmartCare.Core.csproj" />
+  <Project Path="SmartCare.Infrastructure/SmartCare.Infrastructure.csproj" />
+  <Project Path="SmartCare.Services.Abstraction/SmartCare.Services.Abstraction.csproj" />
+  <Project Path="SmartCare.Services/SmartCare.Services.csproj" />
+  <Project Path="SmartCare.Shared/SmartCare.Shared.csproj" />
+</Solution>
