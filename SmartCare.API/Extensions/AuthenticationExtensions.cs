@@ -13,7 +13,7 @@ public static class AuthenticationExtensions
 
         var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? throw new InvalidOperationException( "JWT configuration is missing.");
 
-        if (string.IsNullOrWhiteSpace(jwtOptions.Key))
+        if (string.IsNullOrWhiteSpace(jwtOptions.SecretKey))
         {
             throw new InvalidOperationException("JWT Key is missing.");
         }
@@ -40,7 +40,7 @@ public static class AuthenticationExtensions
 
                         ValidAudience = jwtOptions.Audience,
 
-                        IssuerSigningKey =new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+                        IssuerSigningKey =new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
 
                         ClockSkew = TimeSpan.Zero
                     };

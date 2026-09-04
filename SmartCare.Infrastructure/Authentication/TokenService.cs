@@ -50,7 +50,7 @@ public class TokenService : ITokenService
 
         claims.AddRange( roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
 
         var credentials = new SigningCredentials( key,SecurityAlgorithms.HmacSha256);
 

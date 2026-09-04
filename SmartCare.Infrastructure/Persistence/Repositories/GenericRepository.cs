@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SmartCare.Core.Interfaces.Repositories;
-using SmartCare.Infrastructure.Persistence;
 using System.Linq.Expressions;
 
 namespace SmartCare.Infrastructure.Persistence.Repositories;
@@ -22,6 +21,10 @@ public class GenericRepository<TEntity, TId>
     public async Task<TEntity?> GetByIdAsync(TId id)
     {
         return await _dbSet.FindAsync(id);
+    }
+    public async Task<IReadOnlyList<TEntity>> GetAllTrackedAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.Where(predicate).ToListAsync();
     }
 
     public async Task<IReadOnlyList<TEntity>> GetAllAsync()
@@ -52,5 +55,10 @@ public class GenericRepository<TEntity, TId>
     public void Delete(TEntity entity)
     {
         _dbSet.Remove(entity);
+    }
+
+    public async Task<IReadOnlyList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+    {
+        return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
     }
 }

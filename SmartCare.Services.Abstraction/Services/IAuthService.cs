@@ -1,22 +1,23 @@
 ﻿using SmartCare.Services.Abstraction.DTOs.Authentication;
+using SmartCare.Shared.Responses;
 
 namespace SmartCare.Services.Abstraction.Services;
 
 public interface IAuthService
 {
-    Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
+    
+        Task<ApiResponse<RegisterResponseDto>> RegisterAsync( RegisterDto dto);
 
-    Task<AuthResponseDto> LoginAsync(LoginDto dto);
+        Task<ApiResponse<AuthResponseDto>> LoginAsync( LoginDto dto);
 
-    Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenDto dto);
+        Task<ApiResponse<AuthResponseDto>> RefreshTokenAsync(RefreshTokenDto dto);
 
-    Task LogoutAsync(RefreshTokenDto dto);
+        Task<ApiResponse<bool>> LogoutAsync( string userId);
 
-    Task VerifyEmailAsync(VerifyEmailDto dto);
+        Task<ApiResponse<bool>> VerifyEmailAsync(VerifyEmailDto dto);
 
-    Task ForgotPasswordAsync(ForgotPasswordDto dto);
+        Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordDto dto);
 
-    Task ResetPasswordAsync(ResetPasswordDto dto);
-
-    Task ChangePasswordAsync( Guid userId, ChangePasswordDto dto);
+        Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordDto dto);
+    
 }

@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.25" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.25" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.25" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SmartCare.Core\SmartCare.Core.csproj" />
+    <ProjectReference Include="..\SmartCare.Shared\SmartCare.Shared.csproj" />
   </ItemGroup>
 
 </Project>
