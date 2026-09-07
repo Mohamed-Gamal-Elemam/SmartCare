@@ -18,8 +18,7 @@ public static class SmartCareDataSeed
         // await SeedDoctorsAsync(context);
     }
 
-    private static async Task SeedRolesAsync(
-        IServiceProvider services)
+    private static async Task SeedRolesAsync(IServiceProvider services)
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
@@ -38,7 +37,7 @@ public static class SmartCareDataSeed
     {
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-        const string    adminEmail = "Mohamed@gmail.com";
+        const string  adminEmail = "Mohamed@gmail.com";
 
         var existingAdmin =await userManager.FindByEmailAsync(adminEmail);
 

@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SmartCare.Core.Entities.Identity;
 using SmartCare.Core.Interfaces;
 using SmartCare.Core.Interfaces.Repositories;
-using SmartCare.Infrastructure.Authentication;
 using SmartCare.Infrastructure.Persistence;
 using SmartCare.Infrastructure.Persistence.Repositories;
 using SmartCare.Services.Abstraction.Options;
@@ -28,7 +25,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
-        services.AddScoped<ITokenService, TokenService>();
+        
 
 
 

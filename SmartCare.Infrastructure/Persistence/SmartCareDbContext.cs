@@ -18,7 +18,6 @@ public class SmartCareDbContext: IdentityDbContext<ApplicationUser, IdentityRole
     {
         base.OnModelCreating(builder);
 
-        builder.ApplyConfigurationsFromAssembly(
-            typeof(SmartCareDbContext).Assembly);
+        builder.ApplyConfigurationsFromAssembly( typeof(SmartCareDbContext).Assembly);
     }
 }
