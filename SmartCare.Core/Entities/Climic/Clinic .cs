@@ -1,7 +1,6 @@
-﻿using SmartCare.Core.Entities;
-using System.Numerics;
+﻿using System.Numerics;
 
-namespace SmartCare.Core.Entities;
+namespace SmartCare.Core.Entities.Climic;
 
 public class Clinic : BaseEntity<Guid>
 {

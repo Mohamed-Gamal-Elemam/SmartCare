@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartCare.Core.Entities;
+using SmartCare.Core.Entities.Climic;
 
 
 namespace SmartCare.Infrastructure.Persistence.Configurations

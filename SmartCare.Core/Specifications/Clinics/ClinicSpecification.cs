@@ -1,6 +1,6 @@
 ﻿
 using System.Linq.Expressions;
-using SmartCare.Core.Entities;
+using SmartCare.Core.Entities.Climic;
 
 namespace SmartCare.Core.Specifications.Clinics;
 

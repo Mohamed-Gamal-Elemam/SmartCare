@@ -1,4 +1,4 @@
-﻿namespace SmartCare.Core.Entities;
+﻿namespace SmartCare.Core.Entities.Climic;
 
 public class ClinicWorkingHour : BaseEntity<Guid>
 {

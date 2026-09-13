@@ -153,7 +153,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.Clinic", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Climic.Clinic", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -194,7 +194,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("Clinics", (string)null);
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.ClinicWorkingHour", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Climic.ClinicWorkingHour", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,6 +222,54 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("ClinicWorkingHours", (string)null);
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.Docotr.Doctor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Biography")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("ConsultationFee")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("SpecialtyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("YearsOfExperience")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("IsActive");
+
+                    b.HasIndex("SpecialtyId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.HasIndex("ClinicId", "IsActive");
+
+                    b.HasIndex("SpecialtyId", "IsActive");
+
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("SmartCare.Core.Entities.Identity.ApplicationUser", b =>
@@ -424,15 +472,42 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.ClinicWorkingHour", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Climic.ClinicWorkingHour", b =>
                 {
-                    b.HasOne("SmartCare.Core.Entities.Clinic", "Clinic")
+                    b.HasOne("SmartCare.Core.Entities.Climic.Clinic", "Clinic")
                         .WithMany("WorkingHours")
                         .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Clinic");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.Docotr.Doctor", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.Climic.Clinic", "Clinic")
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SmartCare.Core.Entities.Specialty", "Specialty")
+                        .WithMany()
+                        .HasForeignKey("SpecialtyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SmartCare.Core.Entities.Identity.ApplicationUser", "User")
+                        .WithOne("Doctor")
+                        .HasForeignKey("SmartCare.Core.Entities.Docotr.Doctor", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Clinic");
+
+                    b.Navigation("Specialty");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("SmartCare.Core.Entities.Identity.RefreshToken", b =>
@@ -446,9 +521,14 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.Clinic", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Climic.Clinic", b =>
                 {
                     b.Navigation("WorkingHours");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.Identity.ApplicationUser", b =>
+                {
+                    b.Navigation("Doctor");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using SmartCare.Core.Entities.Docotr;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +15,8 @@ namespace SmartCare.Core.Entities.Identity
         public DateTime CreatedAt { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public virtual Doctor? Doctor { get; set; }
     }
 }
     
