@@ -1,8 +1,4 @@
-﻿using SmartCare.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 
 namespace SmartCare.Core.Interfaces.Repositories
 {
@@ -14,6 +10,9 @@ namespace SmartCare.Core.Interfaces.Repositories
         Task<IReadOnlyList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
         Task<IReadOnlyList<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<IReadOnlyList<TEntity>> GetBySpecificationAsync(ISpecification<TEntity> specification);
+
+        Task<int> CountAsync( ISpecification<TEntity> specification);
 
         Task AddAsync(TEntity entity);
 

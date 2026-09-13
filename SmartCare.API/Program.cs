@@ -16,7 +16,13 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                var enumConverter = new System.Text.Json.Serialization.JsonStringEnumConverter();
+                options.JsonSerializerOptions.Converters.Add(enumConverter);
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            });
 
         builder.Services.AddOpenApi();
         builder.Services.AddEndpointsApiExplorer();

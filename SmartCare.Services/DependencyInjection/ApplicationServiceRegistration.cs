@@ -29,6 +29,7 @@ public static class ApplicationServiceRegistration
         services.AddAutoMapper(cfg => { }, typeof(ServicesReference).Assembly);
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<ISpecialtyService, SpecialtyService>();
+        services.AddScoped<IClinicService, ClinicService    >();
 
         return services;
     }

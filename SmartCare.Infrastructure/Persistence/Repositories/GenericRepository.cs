@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SmartCare.Core.Interfaces;
 using SmartCare.Core.Interfaces.Repositories;
+using SmartCare.Infrastructure.Persistence.Specifications;
 using System.Linq.Expressions;
 
 namespace SmartCare.Infrastructure.Persistence.Repositories;
@@ -42,6 +44,18 @@ public class GenericRepository<TEntity, TId>
         return await _dbSet.AnyAsync(predicate);
     }
 
+    public async Task<IReadOnlyList<TEntity>> GetBySpecificationAsync( ISpecification<TEntity> specification)
+    {
+        var query = SpecificationEvaluator<TEntity> .GetQuery(_dbSet.AsQueryable(), specification);
+
+        return await query.AsNoTracking() .ToListAsync();
+    }
+    public async Task<int> CountAsync(ISpecification<TEntity> specification)
+    {
+        // هنا بننادي على كويري خفيفة جداً من غير Includes
+        var query = SpecificationEvaluator<TEntity>.GetCountQuery(_dbSet.AsQueryable(), specification);
+        return await query.CountAsync();
+    }
     public async Task AddAsync(TEntity entity)
     {
         await _dbSet.AddAsync(entity);
