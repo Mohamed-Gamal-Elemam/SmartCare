@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SmartCare.Core.Entities.Docotr
+namespace SmartCare.Core.Entities.Doctors
 {
     public class Doctor : BaseEntity<Guid>
     {

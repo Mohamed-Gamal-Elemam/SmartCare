@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SmartCare.Core.Entities.Docotr;
+using SmartCare.Core.Entities.Doctors;
 using System;
 using System.Collections.Generic;
 using System.Text;

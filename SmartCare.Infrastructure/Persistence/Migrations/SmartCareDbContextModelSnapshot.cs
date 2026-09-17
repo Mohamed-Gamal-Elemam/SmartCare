@@ -206,6 +206,9 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<TimeOnly?>("CloseTime")
                         .HasColumnType("time");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("DayOfWeek")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -216,6 +219,9 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<TimeOnly?>("OpenTime")
                         .HasColumnType("time");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ClinicId", "DayOfWeek")
@@ -224,7 +230,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("ClinicWorkingHours", (string)null);
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.Docotr.Doctor", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Doctors.Doctor", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -242,11 +248,17 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<Guid>("SpecialtyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -336,6 +348,9 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -483,7 +498,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Navigation("Clinic");
                 });
 
-            modelBuilder.Entity("SmartCare.Core.Entities.Docotr.Doctor", b =>
+            modelBuilder.Entity("SmartCare.Core.Entities.Doctors.Doctor", b =>
                 {
                     b.HasOne("SmartCare.Core.Entities.Climic.Clinic", "Clinic")
                         .WithMany()
@@ -499,7 +514,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
 
                     b.HasOne("SmartCare.Core.Entities.Identity.ApplicationUser", "User")
                         .WithOne("Doctor")
-                        .HasForeignKey("SmartCare.Core.Entities.Docotr.Doctor", "UserId")
+                        .HasForeignKey("SmartCare.Core.Entities.Doctors.Doctor", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

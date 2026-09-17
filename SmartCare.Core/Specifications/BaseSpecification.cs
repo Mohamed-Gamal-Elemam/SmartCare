@@ -28,10 +28,13 @@ public abstract class BaseSpecification<T> : ISpecification<T>
     protected void AddOrderBy(Expression<Func<T, object>> orderByExpression) => OrderBy = orderByExpression;
     protected void AddOrderByDescending(Expression<Func<T, object>> orderByDescendingExpression) => OrderByDescending = orderByDescendingExpression;
 
-    protected void ApplyPaging(int pageNumber, int pageSize)
+    protected void ApplyPaging(int skip, int take)
     {
+        if (skip < 0) skip = 0;
+        if (take <= 0) take = 10;
+
         IsPagingEnabled = true;
-        Skip = (pageNumber - 1) * pageSize;
-        Take = pageSize;
+        Skip = skip;
+        Take = take;
     }
 }

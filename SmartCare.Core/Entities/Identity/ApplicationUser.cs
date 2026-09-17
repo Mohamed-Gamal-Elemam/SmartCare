@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using SmartCare.Core.Entities.Docotr;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SmartCare.Core.Entities.Doctors;
+
 
 namespace SmartCare.Core.Entities.Identity
 {
@@ -13,6 +11,7 @@ namespace SmartCare.Core.Entities.Identity
         public string LastName { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
 
         public bool IsActive { get; set; } = true;
 
