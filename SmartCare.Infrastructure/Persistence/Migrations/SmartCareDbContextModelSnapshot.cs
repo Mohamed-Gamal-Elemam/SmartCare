@@ -230,6 +230,110 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("ClinicWorkingHours", (string)null);
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SlotDurationInMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId", "DayOfWeek");
+
+                    b.ToTable("DoctorAvailabilities", (string)null);
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailabilityBreak", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DoctorAvailabilityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorAvailabilityId");
+
+                    b.ToTable("DoctorAvailabilityBreaks", (string)null);
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailabilityException", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeSpan?>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsUnavailable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId", "Date");
+
+                    b.ToTable("DoctorAvailabilityExceptions", (string)null);
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Doctors.Doctor", b =>
                 {
                     b.Property<Guid>("Id")
@@ -496,6 +600,39 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Clinic");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailability", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.Doctors.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailabilityBreak", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailability", "DoctorAvailability")
+                        .WithMany()
+                        .HasForeignKey("DoctorAvailabilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DoctorAvailability");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailabilityException", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.Doctors.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
                 });
 
             modelBuilder.Entity("SmartCare.Core.Entities.Doctors.Doctor", b =>
