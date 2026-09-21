@@ -96,14 +96,14 @@ namespace SmartCare.API.Controllers
             return NoContent();
         }
 
-        private Guid GetDoctorIdFromClaims()
-        {
-            var doctorIdClaim = User.FindFirst("DoctorId")?.Value;
+            private Guid GetDoctorIdFromClaims()
+            {
+                var doctorIdClaim = User.FindFirst("DoctorId")?.Value;
 
-            if (string.IsNullOrEmpty(doctorIdClaim) || !Guid.TryParse(doctorIdClaim, out var doctorId))
-                throw new BadRequestException("Invalid or missing Doctor Identity in token.");
+                if (string.IsNullOrEmpty(doctorIdClaim) || !Guid.TryParse(doctorIdClaim, out var doctorId))
+                    throw new BadRequestException("Invalid or missing Doctor Identity in token.");
 
-            return doctorId;
-        }
+                return doctorId;
+            }
     }
 }

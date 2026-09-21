@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using SmartCare.Core.Entities;
 using SmartCare.Core.Entities.Climic;
 using SmartCare.Core.Entities.Doctors;
@@ -8,6 +9,7 @@ using SmartCare.Core.Specifications.Doctors;
 using SmartCare.Services.Abstraction.DTOs.Doctors;
 using SmartCare.Services.Abstraction.Exceptions;
 using SmartCare.Services.Abstraction.Services;
+using SmartCare.Shared.Constants;
 using SmartCare.Shared.Responses;
 
 
@@ -17,11 +19,13 @@ namespace SmartCare.Services.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper)
+        public DoctorService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         public async Task<PaginatedResponse<DoctorDto>> GetDoctorsAsync(DoctorSpecParams specParams)
@@ -74,7 +78,7 @@ namespace SmartCare.Services.Services
                 throw new ConflictException($"User with ID '{createDoctorDto.UserId}' already has a Doctor profile.");
 
             // 2. Validate User Existence 
-            var user = await _unitOfWork.GetRepository<ApplicationUser, Guid>().GetByIdAsync(createDoctorDto.UserId);
+            var user = await _userManager.FindByIdAsync(createDoctorDto.UserId.ToString());
             if (user == null)
                 throw new NotFoundException($"User with ID '{createDoctorDto.UserId}' does not exist.");
 
@@ -95,6 +99,18 @@ namespace SmartCare.Services.Services
             doctor.IsActive = true;
 
             await doctorRepo.AddAsync(doctor);
+
+            // 6. Update Identity Role to Doctor
+            if (await _userManager.IsInRoleAsync(user, RoleConstants.Patient))
+            {
+                await _userManager.RemoveFromRoleAsync(user, RoleConstants.Patient);
+            }
+
+            if (!await _userManager.IsInRoleAsync(user, RoleConstants.Doctor))
+            {
+                await _userManager.AddToRoleAsync(user, RoleConstants.Doctor);
+            }
+
             await _unitOfWork.SaveChangesAsync();
 
             return await GetDoctorByIdAsync(doctor.Id);

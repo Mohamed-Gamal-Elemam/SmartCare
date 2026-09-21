@@ -1,15 +1,17 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using SmartCare.Core.Entities.Doctors;
 using SmartCare.Core.Entities.Identity;
 using SmartCare.Core.Interfaces;
 using SmartCare.Services.Abstraction.DTOs.Authentication;
 using SmartCare.Services.Abstraction.Options;
 using SmartCare.Services.Abstraction.Services;
+using SmartCare.Shared.Constants;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace SmartCare.Services.Services;
 
@@ -39,6 +41,17 @@ public class TokenService : ITokenService
         };
 
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        if (roles.Contains(RoleConstants.Doctor))
+        {
+            var doctor = await _unitOfWork.GetRepository<Doctor, Guid>()
+                .GetAllAsync(d => d.UserId == user.Id);
+
+            var doctorProfile = doctor.FirstOrDefault();
+            if (doctorProfile != null)
+            {
+                claims.Add(new Claim("DoctorId", doctorProfile.Id.ToString()));
+            }
+        }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
 
