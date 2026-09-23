@@ -8,9 +8,9 @@ namespace SmartCare.Core.Entities.DoctorAvailabilitys
     {
         public Guid DoctorAvailabilityId { get; set; }
 
-        public TimeSpan StartTime { get; set; }
+        public TimeOnly StartTime { get; set; }
 
-        public TimeSpan EndTime { get; set; }
+        public TimeOnly EndTime { get; set; }
 
         // Navigation Property
         public DoctorAvailability DoctorAvailability { get; set; } = null!;

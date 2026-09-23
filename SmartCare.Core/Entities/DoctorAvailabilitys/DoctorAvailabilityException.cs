@@ -11,9 +11,9 @@ namespace SmartCare.Core.Entities.DoctorAvailabilitys
 
         public DateOnly Date { get; set; }
 
-        public TimeSpan? StartTime { get; set; }
+        public TimeOnly? StartTime { get; set; }
 
-        public TimeSpan? EndTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
 
         public bool IsUnavailable { get; set; }
 

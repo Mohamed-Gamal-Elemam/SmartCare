@@ -153,6 +153,58 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.Appointments.Appointment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateOnly>("AppointmentDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal>("ConsultationFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId", "AppointmentDate");
+
+                    b.HasIndex("DoctorId", "AppointmentDate", "Status");
+
+                    b.ToTable("Appointment");
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Climic.Clinic", b =>
                 {
                     b.Property<Guid>("Id")
@@ -246,7 +298,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<bool>("IsActive")
@@ -255,7 +307,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<int>("SlotDurationInMinutes")
                         .HasColumnType("int");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -280,10 +332,10 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("DoctorAvailabilityId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<TimeSpan>("EndTime")
+                    b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
-                    b.Property<TimeSpan>("StartTime")
+                    b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -311,7 +363,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<TimeSpan?>("EndTime")
+                    b.Property<TimeOnly?>("EndTime")
                         .HasColumnType("time");
 
                     b.Property<bool>("IsUnavailable")
@@ -321,7 +373,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<TimeSpan?>("StartTime")
+                    b.Property<TimeOnly?>("StartTime")
                         .HasColumnType("time");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -506,6 +558,48 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.Patients.Patient", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("BloodGroup")
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EmergencyContact")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Gender")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Patient");
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Specialty", b =>
                 {
                     b.Property<Guid>("Id")
@@ -591,6 +685,25 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.Appointments.Appointment", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.Doctors.Doctor", "Doctor")
+                        .WithMany()
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SmartCare.Core.Entities.Patients.Patient", "Patient")
+                        .WithMany("Appointments")
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Climic.ClinicWorkingHour", b =>
                 {
                     b.HasOne("SmartCare.Core.Entities.Climic.Clinic", "Clinic")
@@ -616,7 +729,7 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailabilityBreak", b =>
                 {
                     b.HasOne("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailability", "DoctorAvailability")
-                        .WithMany()
+                        .WithMany("Breaks")
                         .HasForeignKey("DoctorAvailabilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -673,14 +786,37 @@ namespace SmartCare.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.Patients.Patient", b =>
+                {
+                    b.HasOne("SmartCare.Core.Entities.Identity.ApplicationUser", "User")
+                        .WithOne("Patient")
+                        .HasForeignKey("SmartCare.Core.Entities.Patients.Patient", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Climic.Clinic", b =>
                 {
                     b.Navigation("WorkingHours");
                 });
 
+            modelBuilder.Entity("SmartCare.Core.Entities.DoctorAvailabilitys.DoctorAvailability", b =>
+                {
+                    b.Navigation("Breaks");
+                });
+
             modelBuilder.Entity("SmartCare.Core.Entities.Identity.ApplicationUser", b =>
                 {
                     b.Navigation("Doctor");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("SmartCare.Core.Entities.Patients.Patient", b =>
+                {
+                    b.Navigation("Appointments");
                 });
 #pragma warning restore 612, 618
         }

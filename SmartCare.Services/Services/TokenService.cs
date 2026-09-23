@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SmartCare.Core.Entities.Doctors;
 using SmartCare.Core.Entities.Identity;
+using SmartCare.Core.Entities.Patients;
 using SmartCare.Core.Interfaces;
 using SmartCare.Services.Abstraction.DTOs.Authentication;
 using SmartCare.Services.Abstraction.Options;
@@ -50,6 +51,17 @@ public class TokenService : ITokenService
             if (doctorProfile != null)
             {
                 claims.Add(new Claim("DoctorId", doctorProfile.Id.ToString()));
+            }
+        }
+        if (roles.Contains(RoleConstants.Patient))
+        {
+            var patients = await _unitOfWork.GetRepository<Patient, Guid>()
+                .GetAllAsync(p => p.UserId == user.Id);
+
+            var patientProfile = patients.FirstOrDefault();
+            if (patientProfile != null)
+            {
+                claims.Add(new Claim("PatientId", patientProfile.Id.ToString()));
             }
         }
 

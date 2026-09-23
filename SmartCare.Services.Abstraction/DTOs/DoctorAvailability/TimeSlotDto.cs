@@ -6,11 +6,12 @@ namespace SmartCare.Services.Abstraction.DTOs.DoctorAvailability
 {
     public class TimeSlotDto
     {
-        public DateOnly Date { get; set; }
 
-        public TimeSpan StartTime { get; set; }
+        public TimeOnly StartTime { get; set; }
 
-        public TimeSpan EndTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string? UnavailabilityReason { get; set; }
+        public bool IsAvailable { get; set; }
 
     }
 }

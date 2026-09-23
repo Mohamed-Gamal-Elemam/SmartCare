@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SmartCare.Core.Entities.Doctors;
+using SmartCare.Core.Entities.Patients;
 
 
 namespace SmartCare.Core.Entities.Identity
@@ -16,6 +17,7 @@ namespace SmartCare.Core.Entities.Identity
         public bool IsActive { get; set; } = true;
 
         public virtual Doctor? Doctor { get; set; }
+        public virtual Patient? Patient { get; set; }
     }
 }
     
