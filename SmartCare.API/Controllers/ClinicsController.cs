@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SmartCare.Services.Abstraction.DTOs.Clinic;
+using SmartCare.Core.Specifications.Clinics;
 using SmartCare.Services.Abstraction.DTOs.Clinics;
 using SmartCare.Services.Abstraction.Services;
 using SmartCare.Shared.Responses;

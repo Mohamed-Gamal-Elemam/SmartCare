@@ -2,7 +2,6 @@
 using SmartCare.Core.Entities.Climic;
 using SmartCare.Core.Interfaces;
 using SmartCare.Core.Specifications.Clinics;
-using SmartCare.Services.Abstraction.DTOs.Clinic;
 using SmartCare.Services.Abstraction.DTOs.Clinics;
 using SmartCare.Services.Abstraction.Exceptions;
 using SmartCare.Services.Abstraction.Services;
@@ -108,7 +107,7 @@ public class ClinicService : IClinicService
     private async Task<ApiResponse<PaginatedResponse<ClinicDto>>> GetPaginatedClinicsAsync(ClinicSpecParams specParams)
     {
         var repo = _unitOfWork.GetRepository<Clinic, Guid>();
-        var spec = new ClinicSpecification(  specParams.Search,  specParams.IsActive,  specParams.PageNumber,  specParams.PageSize);
+        var spec = new ClinicSpecification(specParams);
 
         var clinics = await repo.GetBySpecificationAsync(spec);
         var totalCount = await repo.CountAsync(spec);

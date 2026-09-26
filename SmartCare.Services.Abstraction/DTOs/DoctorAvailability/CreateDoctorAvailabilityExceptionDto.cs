@@ -7,8 +7,8 @@ namespace SmartCare.Services.Abstraction.DTOs.DoctorAvailability
     public class CreateDoctorAvailabilityExceptionDto
     {
         public DateOnly Date { get; set; }
-        public TimeSpan? StartTime { get; set; }
-        public TimeSpan? EndTime { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
         public bool IsUnavailable { get; set; }
         public string? Reason { get; set; }
     }

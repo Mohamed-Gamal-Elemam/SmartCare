@@ -32,6 +32,7 @@ public static class ApplicationServiceRegistration
         services.AddScoped<IClinicService, ClinicService >();
         services.AddScoped<IDoctorService, DoctorService>();
         services.AddScoped<IDoctorAvailabilityService, DoctorAvailabilityService>();
+        services.AddScoped<ITimeSlotService, TimeSlotService>();
 
         return services;
     }

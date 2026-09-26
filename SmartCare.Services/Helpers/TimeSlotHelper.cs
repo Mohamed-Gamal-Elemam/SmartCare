@@ -1,4 +1,7 @@
-﻿using SmartCare.Core.Entities.Appointments;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using SmartCare.Core.Entities.Appointments;
 using SmartCare.Core.Entities.DoctorAvailabilitys;
 using SmartCare.Services.Abstraction.DTOs.DoctorAvailability;
 
@@ -7,90 +10,143 @@ namespace SmartCare.Services.Helpers;
 public static class TimeSlotHelper
 {
     public static List<TimeSlotDto> GenerateAvailableSlots(
-        DoctorAvailability baseAvailability,
+        IEnumerable<DoctorAvailability> baseAvailabilities,
         IEnumerable<DoctorAvailabilityException> exceptions,
         IEnumerable<Appointment> existingAppointments,
-        DateOnly targetDate)
+        DateOnly targetDate,
+        TimeOnly? nowTime = null)
     {
         var slots = new List<TimeSlotDto>();
 
-        // 1. التحقق مما إذا كان هناك استثناء للسيوم بأكمله (IsUnavailable = true وليس له وقت محدد)
-        var fullDayException = exceptions.FirstOrDefault(e => e.Date == targetDate && e.IsUnavailable && e.StartTime == null);
-        if (fullDayException != null)
-        {
-            return slots; // اليوم مغلق بالكامل بواسطة استثناء طارئ/إجازة
-        }
+        var availabilities = baseAvailabilities?
+            .Where(a => a.IsActive && a.DayOfWeek == targetDate.DayOfWeek)
+            .ToList() ?? new List<DoctorAvailability>();
 
-        var slotDuration = TimeSpan.FromMinutes(baseAvailability.SlotDurationInMinutes);
-        var currentStart = baseAvailability.StartTime;
+        if (availabilities.Count == 0)
+            return slots;
 
-        // تجميع استثناءات الساعات الجزئية لهذا اليوم
-        var partialExceptions = exceptions
-            .Where(e => e.Date == targetDate && e.StartTime.HasValue && e.EndTime.HasValue)
+        var exceptionList = exceptions?.ToList() ?? new List<DoctorAvailabilityException>();
+
+        // 1. استثناءات اليوم
+        var dayExceptions = exceptionList
+            .Where(e => e.Date == targetDate && e.IsUnavailable)
             .ToList();
 
-        // تجميع الحجوزات النشطة التي تحجز وقتاً (نستبعد الـ Cancelled)
-        var activeAppointments = existingAppointments
-            .Where(a => a.AppointmentDate == targetDate && a.Status != AppointmentStatus.Cancelled)
+        // استثناء يوم كامل (عندما يكون StartTime غير محدد)
+        if (dayExceptions.Any(e => !e.StartTime.HasValue))
+            return slots;
+
+        // استثناءات جزئية
+        var partialExceptions = dayExceptions
+            .Where(e => e.StartTime.HasValue && e.EndTime.HasValue)
             .ToList();
 
-        while (currentStart.Add(slotDuration) <= baseAvailability.EndTime)
-        {
-            var currentEnd = currentStart.Add(slotDuration);
-            bool isAvailable = true;
-            string? reason = null;
+        // 2. المواعيد النشطة
+        var activeAppointments = existingAppointments?
+            .Where(a => a.AppointmentDate == targetDate
+                     && a.Status != AppointmentStatus.Cancelled)
+            .ToList() ?? new List<Appointment>();
 
-            // 2. فحص التقاطع مع فترات الراحة (Breaks)
-            foreach (var b in baseAvailability.Breaks)
+        bool isToday = targetDate == DateOnly.FromDateTime(DateTime.Now);
+
+        // 3. التكرار على فترات الدوام
+        foreach (var availability in availabilities)
+        {
+            if (availability.SlotDurationInMinutes <= 0)
+                continue;
+
+            // تجاهل الفترة لو تغطيها استثناءات كاملة
+            var fullyCovered = partialExceptions.Any(e =>
+                e.StartTime!.Value <= availability.StartTime &&
+                e.EndTime!.Value >= availability.EndTime);
+
+            if (fullyCovered)
+                continue;
+
+            var slotDuration = TimeSpan.FromMinutes(availability.SlotDurationInMinutes);
+            var currentStart = availability.StartTime;
+
+            while (currentStart < availability.EndTime)
             {
-                if (IsOverlapping(currentStart, currentEnd, b.StartTime, b.EndTime))
+                var currentEnd = currentStart.Add(slotDuration);
+
+                // تجنب الـ Infinite Loop في حالة الخروج عن نطاق اليوم (Midnight Wrap)
+                if (currentEnd <= currentStart && currentEnd != TimeOnly.MinValue)
+                    break;
+
+                if (currentEnd > availability.EndTime && currentEnd != TimeOnly.MinValue)
+                    break;
+
+                bool isAvailable = true;
+                string? reason = null;
+
+                // 3.1 فحص الوقت الحالي لو تاريخ اليوم
+                if (nowTime.HasValue && isToday && currentStart <= nowTime.Value)
                 {
                     isAvailable = false;
-                    reason = "Break Period";    
-                    break;
+                    reason = "Past Time";
                 }
-            }
 
-            // 3. فحص التقاطع مع الاستثناءات الجزئية
-            if (isAvailable)
-            {
-                foreach (var ex in partialExceptions)
+                // 3.2 فحص فترات الراحة
+                if (isAvailable && availability.Breaks != null)
                 {
-                    if (IsOverlapping(currentStart, currentEnd, ex.StartTime!.Value, ex.EndTime!.Value))
+                    foreach (var b in availability.Breaks)
                     {
-                        isAvailable = false;
-                        reason = ex.Reason ?? "Doctor Unavailable";
-                        break;
+                        if (IsOverlapping(currentStart, currentEnd, b.StartTime, b.EndTime))
+                        {
+                            isAvailable = false;
+                            reason = "Break Period";
+                            break;
+                        }
                     }
                 }
-            }
 
-            // 4. فحص التقاطع مع الحجوزات القائمة (Appointments)
-            if (isAvailable)
-            {
-                foreach (var app in activeAppointments)
+                // 3.3 فحص الاستثناءات الجزئية
+                if (isAvailable)
                 {
-                    if (IsOverlapping(currentStart, currentEnd, app.StartTime, app.EndTime))
+                    foreach (var ex in partialExceptions)
                     {
-                        isAvailable = false;
-                        reason = "Already Booked";
-                        break;
+                        if (IsOverlapping(currentStart, currentEnd, ex.StartTime!.Value, ex.EndTime!.Value))
+                        {
+                            isAvailable = false;
+                            reason = string.IsNullOrWhiteSpace(ex.Reason) ? "Doctor Unavailable" : ex.Reason;
+                            break;
+                        }
                     }
                 }
+
+                // 3.4 فحص التقاطع مع المواعيد القائمة
+                if (isAvailable)
+                {
+                    foreach (var app in activeAppointments)
+                    {
+                        if (IsOverlapping(currentStart, currentEnd, app.StartTime, app.EndTime))
+                        {
+                            isAvailable = false;
+                            reason = "Already Booked";
+                            break;
+                        }
+                    }
+                }
+
+                slots.Add(new TimeSlotDto
+                {
+                    StartTime = currentStart,
+                    EndTime = currentEnd,
+                    IsAvailable = isAvailable,
+                    UnavailabilityReason = reason
+                });
+
+                currentStart = currentEnd;
             }
-
-            slots.Add(new TimeSlotDto
-            {
-                StartTime = currentStart,
-                EndTime = currentEnd,
-                IsAvailable = isAvailable,
-                UnavailabilityReason = reason
-            });
-
-            currentStart = currentEnd; // الانتقال للـ Slot التالي
         }
 
-        return slots;
+        // إزالة التكرار مع الحفاظ على الأولوية للـ Slot المتاح إن وجد
+        return slots
+            .GroupBy(s => s.StartTime)
+            .Select(g => g.OrderByDescending(s => s.IsAvailable).First())
+            .OrderBy(s => s.StartTime)
+            .ToList();
     }
 
     private static bool IsOverlapping(TimeOnly start1, TimeOnly end1, TimeOnly start2, TimeOnly end2)

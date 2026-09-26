@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using SmartCare.Core.Entities.Climic;
-using SmartCare.Services.Abstraction.DTOs.Clinic;
 using SmartCare.Services.Abstraction.DTOs.Clinics;
 
 namespace SmartCare.Services.Mapping;

@@ -81,7 +81,7 @@ public class DoctorAvailabilityService : IDoctorAvailabilityService
         }
 
         await _unitOfWork.SaveChangesAsync();
-        return _mapper.Map<DoctorAvailabilityDto>(existing);
+        return _mapper.Map<DoctorAvailabilityDto>(existing);//error
     }
 
     public async Task<DoctorAvailabilityExceptionDto> AddExceptionAsync(Guid doctorId, CreateDoctorAvailabilityExceptionDto dto)

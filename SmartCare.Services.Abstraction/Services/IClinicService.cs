@@ -1,6 +1,6 @@
-﻿using SmartCare.Services.Abstraction.DTOs.Clinic;
-using SmartCare.Services.Abstraction.DTOs.Clinics;
+﻿using SmartCare.Services.Abstraction.DTOs.Clinics;
 using SmartCare.Shared.Responses;
+using SmartCare.Core.Specifications.Clinics;
 
 namespace SmartCare.Services.Abstraction.Services;
 

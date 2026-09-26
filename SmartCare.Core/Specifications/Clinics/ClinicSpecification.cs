@@ -6,15 +6,18 @@ namespace SmartCare.Core.Specifications.Clinics;
 
 public class ClinicSpecification : BaseSpecification<Clinic>
 {
-    public ClinicSpecification( string? search, bool? isActive, int pageNumber, int pageSize)
+    public ClinicSpecification(ClinicSpecParams specParams)
     {
-        Criteria = BuildCriteria(search, isActive);
+        Criteria = BuildCriteria(specParams.Search, specParams.IsActive);
 
         AddInclude(c => c.WorkingHours);
         AddOrderBy(c => c.Name);
-        ApplyPaging(pageNumber, pageSize);
+
+        // الترقيم: skip = PageSize * (PageNumber - 1)
+        ApplyPaging(specParams.PageSize * (specParams.PageNumber - 1), specParams.PageSize);
     }
 
+    // Constructor لجلب عيادة بالـ Id
     public ClinicSpecification(Guid id) : base(c => c.Id == id)
     {
         AddInclude(c => c.WorkingHours);
