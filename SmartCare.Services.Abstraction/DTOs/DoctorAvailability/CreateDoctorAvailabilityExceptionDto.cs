@@ -11,5 +11,6 @@ namespace SmartCare.Services.Abstraction.DTOs.DoctorAvailability
         public TimeOnly? EndTime { get; set; }
         public bool IsUnavailable { get; set; }
         public string? Reason { get; set; }
+
     }
 }

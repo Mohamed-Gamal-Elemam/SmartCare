@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SmartCare.Services.Abstraction.Exceptions;
+using SmartCare.Shared.Responses;
 using System.Net;
 
 namespace SmartCare.API.ExceptionHandlers;
@@ -18,7 +21,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "An exception occurred while processing the request.");
+        _logger.LogError(exception, "An exception occurred while processing request: {Path}", httpContext.Request.Path);
 
         var statusCode = exception switch
         {
@@ -30,17 +33,13 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
             _ => HttpStatusCode.InternalServerError
         };
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = (int)statusCode,
-            Title = GetTitle(statusCode),
-            Detail = GetDetail(exception, statusCode),
-            Instance = httpContext.Request.Path
-        };
+        var message = GetDetail(exception, statusCode);
+        var response = ApiResponse<object>.Fail(message);
 
         httpContext.Response.StatusCode = (int)statusCode;
+        httpContext.Response.ContentType = "application/json";
 
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(response, cancellationToken);
 
         return true;
     }
@@ -52,19 +51,6 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
         return _environment.IsDevelopment()
             ? exception.Message
-            : "An unexpected error occurred. Please try again later.";
-    }
-
-    private static string GetTitle(HttpStatusCode statusCode)
-    {
-        return statusCode switch
-        {
-            HttpStatusCode.BadRequest => "Bad Request",
-            HttpStatusCode.Unauthorized => "Unauthorized",
-            HttpStatusCode.Forbidden => "Forbidden",
-            HttpStatusCode.NotFound => "Not Found",
-            HttpStatusCode.Conflict => "Conflict",
-            _ => "Internal Server Error"
-        };
+            : "An unexpected internal server error occurred. Please try again later.";
     }
 }

@@ -18,8 +18,4 @@
     <ProjectReference Include="..\SmartCare.Shared\SmartCare.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTOs\Appointments\" />
-  </ItemGroup>
-
 </Project>

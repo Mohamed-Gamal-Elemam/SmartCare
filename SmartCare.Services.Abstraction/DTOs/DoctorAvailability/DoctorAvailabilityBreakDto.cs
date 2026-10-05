@@ -11,3 +11,4 @@ namespace SmartCare.Services.Abstraction.DTOs.DoctorAvailability
         public TimeOnly EndTime { get; set; }
     }
 }
+

@@ -1,7 +1,6 @@
-﻿using SmartCare.Core.Interfaces.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using SmartCare.Core.Interfaces.Repositories;
+using System.Data;
 
 namespace SmartCare.Core.Interfaces
 {
@@ -9,5 +8,10 @@ namespace SmartCare.Core.Interfaces
     {
         IGenericRepository<TEntity, TId> GetRepository<TEntity, TId>() where TEntity : class;
         Task<int> SaveChangesAsync();
+
+        // Transactions Management
+        Task<IDbContextTransaction> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
+        Task CommitAsync();
+        Task RollbackAsync();
     }
 }
