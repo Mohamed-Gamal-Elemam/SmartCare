@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using SmartCare.Core.Entities.Identity;
+using SmartCare.Core.Entities.Patients;
 using SmartCare.Core.Interfaces;
 using SmartCare.Services.Abstraction.DTOs.Authentication;
 using SmartCare.Services.Abstraction.Exceptions;
@@ -40,50 +41,80 @@ public class AuthService : IAuthService
     {
         var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
 
-        var existingUser = await _userManager.FindByEmailAsync( normalizedEmail);
-
+        var existingUser = await _userManager.FindByEmailAsync(normalizedEmail);
         if (existingUser != null)
             throw new ConflictException("Email is already registered.");
 
         if (!await _roleManager.RoleExistsAsync(RoleConstants.Patient))
             throw new NotFoundException("Patient role does not exist.");
 
-        var user = new ApplicationUser
-        {
-            Id = Guid.NewGuid(),
-            FirstName = dto.FirstName.Trim(),
-            LastName = dto.LastName.Trim(),
-            Email = normalizedEmail,
-            UserName = normalizedEmail,
-            CreatedAt = DateTime.UtcNow,
-            IsActive = true
-        };
+        // ============ 1) Transaction تغطي إنشاء الـ User + Patient ============
+        await _unitOfWork.BeginTransactionAsync();
 
-        var createResult = await _userManager.CreateAsync( user,dto.Password);
-
-        if (!createResult.Succeeded)
+        try
         {
-            throw new BadRequestException( string.Join(", ",createResult.Errors.Select(e => e.Description)));
+            var user = new ApplicationUser
+            {
+                Id = Guid.NewGuid(),
+                FirstName = dto.FirstName.Trim(),
+                LastName = dto.LastName.Trim(),
+                Email = normalizedEmail,
+                UserName = normalizedEmail,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+            var createResult = await _userManager.CreateAsync(user, dto.Password);
+            if (!createResult.Succeeded)
+                throw new BadRequestException(
+                    string.Join(", ", createResult.Errors.Select(e => e.Description)));
+
+            var roleResult = await _userManager.AddToRoleAsync(user, RoleConstants.Patient);
+            if (!roleResult.Succeeded)
+                throw new BadRequestException(
+                    string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+
+            // ============ 2) الأهم: إنشاء Patient entity ============
+            var patientRepository = _unitOfWork.GetRepository<Patient, Guid>();
+
+            var patient = new Patient
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                // ⬇️ املأ الحقول دي حسب الـ Patient entity عندك
+                // DateOfBirth = dto.DateOfBirth,
+                // Gender = dto.Gender,
+                // PhoneNumber = dto.PhoneNumber,
+                // Address = dto.Address,
+            };
+
+            await patientRepository.AddAsync(patient);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.CommitAsync();
+
+            // ============ 3) Email verification job (بعد الـ commit) ============
+            _backgroundJobClient.Enqueue<IEmailJobService>(
+                x => x.SendConfirmationEmailJobAsync(user.Id));
+
+            var response = new RegisterResponseDto
+            {
+                UserId = user.Id,
+                Email = user.Email ?? string.Empty,
+                RequiresEmailVerification = true
+            };
+
+            return ApiResponse<RegisterResponseDto>.Ok(
+                response,
+                "Registration successful. Please verify your email.");
         }
-
-        var roleResult = await _userManager.AddToRoleAsync(user,RoleConstants.Patient);
-
-        if (!roleResult.Succeeded)
+        catch
         {
-            throw new BadRequestException(string.Join(", ",roleResult.Errors.Select(e => e.Description)));
+            await _unitOfWork.RollbackAsync();
+            throw;
         }
-
-        _backgroundJobClient.Enqueue<IEmailJobService>( x => x.SendConfirmationEmailJobAsync(user.Id));
-
-        var response = new RegisterResponseDto
-        {
-            UserId = user.Id,
-            Email = user.Email ?? string.Empty,
-            RequiresEmailVerification = true
-        };
-
-        return ApiResponse<RegisterResponseDto>.Ok( response, "Registration successful. Please verify your email.");
     }
+
 
     public async Task<ApiResponse<AuthResponseDto>> LoginAsync(LoginDto dto)
     {

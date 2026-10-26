@@ -1,22 +1,24 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using SmartCare.Services.Abstraction.Options;
+using System.Security.Claims;
 using System.Text;
 
 namespace SmartCare.API.Extensions;
 
 public static class AuthenticationExtensions
 {
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services,IConfiguration configuration)
+    public static IServiceCollection AddJwtAuthentication(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
-        var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? throw new InvalidOperationException( "JWT configuration is missing.");
+        var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>()
+            ?? throw new InvalidOperationException("JWT configuration is missing.");
 
         if (string.IsNullOrWhiteSpace(jwtOptions.SecretKey))
-        {
             throw new InvalidOperationException("JWT Key is missing.");
-        }
 
         services.AddAuthentication(options =>
         {
@@ -26,25 +28,22 @@ public static class AuthenticationExtensions
         .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
-                    
-                    {
-                        ValidateIssuer = true,
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtOptions.Issuer,
+                ValidAudience = jwtOptions.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                ClockSkew = TimeSpan.Zero,
 
-                        ValidateAudience = true,
-
-                        ValidateLifetime = true,
-
-                        ValidateIssuerSigningKey = true,
-
-                        ValidIssuer = jwtOptions.Issuer,
-
-                        ValidAudience = jwtOptions.Audience,
-
-                        IssuerSigningKey =new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-
-                        ClockSkew = TimeSpan.Zero
-                    };
-            });
+                // عشان يقرأ الـ Claims صح
+                NameClaimType = ClaimTypes.NameIdentifier,
+                RoleClaimType = ClaimTypes.Role
+            };
+        });
 
         services.AddAuthorization();
 
